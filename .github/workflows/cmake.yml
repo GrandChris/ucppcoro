@@ -18,9 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # - name: Install packages
+    - name: Install packages
 
-    #   run: apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends --reinstall ca-certificates && apt-get -y install --no-install-recommends git build-essential cmake ninja-build curl unzip tar
+      run: apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends --reinstall ca-certificates && apt-get -y install --no-install-recommends git build-essential cmake ninja-build curl unzip tar
 
     # - name: Create Build Environment
     #   # Some projects don't allow in-source building, so create a separate build directory
@@ -37,7 +37,7 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       # run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
       # run: source ${{runner.workspace}}/scirpts/cmake_configure.sh
-      run: pwd && ls && cd .. && ls
+      run: pwd && ls && cd .. && pwd && ls && source ./scirpts/cmake_configure.sh
 
     - name: Build
       # working-directory: ${{runner.workspace}}/build
