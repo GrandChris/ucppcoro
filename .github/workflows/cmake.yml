@@ -13,9 +13,14 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: ubuntu-20.04
+    container: ubuntu:groovy
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install packages
+
+      run: apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends --reinstall ca-certificates && apt-get -y install --no-install-recommends git build-essential cmake ninja-build curl unzip tar
 
     - name: Create Build Environment
       # Some projects don't allow in-source building, so create a separate build directory
