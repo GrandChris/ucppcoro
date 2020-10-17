@@ -1,0 +1,7 @@
+{
+    "name": "ucppcoro",
+    "version-string": "v0.0.1",
+    "dependencies": [
+      "gtest"
+    ]
+  }
