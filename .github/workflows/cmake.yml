@@ -6,12 +6,6 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
-# Cache libraries in between jobs
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - vcpkg/
-    - build/vcpkg_installed
 
 jobs:
   build:
@@ -21,10 +15,14 @@ jobs:
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: ubuntu-20.04
 
-
-
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache vcpkg
+      uses: actions/cache@v2
+      with:
+        path: ./vcpkg
+        key: vcpkg_cache
 
     - name: Checkout submodule
       run: git submodule init && git submodule update
