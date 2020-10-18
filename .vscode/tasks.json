@@ -6,9 +6,9 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "git",
+            "command": "source",
             "args": [
-                "clean", "-xdf"
+                "./scripts/clean.sh"
             ],
             "problemMatcher": []
         },

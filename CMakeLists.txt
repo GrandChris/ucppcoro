@@ -26,18 +26,39 @@ add_executable(${PROJECT_NAME})
 target_compile_options(${PROJECT_NAME} PRIVATE
   -fcoroutines 
   -Wall 
-  -O3
+  -Og
 )
 
 # Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE "./include")
-
 
 # Add source files
 file(GLOB SOURCE_FILES CONFIGURE_DEPENDS
     "./source/*.cpp"
 )
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
+
+################################### Unit Tests ################################
+
+set(PROJECT_TEST_NAME ${PROJECT_NAME}_tests)
+
+add_executable(${PROJECT_TEST_NAME})
+
+# Add source files
+file(GLOB SOURCE_FILES_TEST CONFIGURE_DEPENDS
+    "./test/*.cpp"
+)
+target_sources(${PROJECT_TEST_NAME} PRIVATE ${SOURCE_FILES_TEST})
+
+find_package(GTest CONFIG REQUIRED)
+
+target_link_libraries(${PROJECT_TEST_NAME} PRIVATE GTest::gtest_main)
+
+enable_testing()
+include(GoogleTest)
+gtest_discover_tests(${PROJECT_TEST_NAME})
+
+
 
 
 
