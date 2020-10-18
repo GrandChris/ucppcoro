@@ -45,7 +45,7 @@ jobs:
       # run: source ${{runner.workspace}}/scirpts/cmake_configure.sh
       # run: source ./scripts/cmake_configure.sh
       # run: docker run -it -v $PWD:/srv -w/srv local_docker_image source ./scripts/cmake_configure.sh 
-      run: docker run -v $(pwd):/srv -w/srv local_docker_image ls
+      run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/cmake_configure.sh"
       # run: docker run -it -v ${PWD}:/srv -w/srv local_docker_image
 
     - name: Build
@@ -53,7 +53,8 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       # run: cmake --build . --config $BUILD_TYPE
-      run: source ./scripts/build.sh
+      # run: source ./scripts/build.sh
+      run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/build.sh"
 
     # - name: Test
     #   working-directory: ${{runner.workspace}}/build
