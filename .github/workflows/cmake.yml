@@ -13,7 +13,7 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: ubuntu-20.04
-    container: ubuntu:groovy
+    container: .devcontainer/Dockerfile
 
     steps:
     - uses: actions/checkout@v2
