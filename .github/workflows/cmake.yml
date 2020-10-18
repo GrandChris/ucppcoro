@@ -18,6 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Checkout submodule
+      run: git submodule init && git submodule update
+
     - name: Build docker images
       run: docker build ./ --file .devcontainer/Dockerfile -t local_docker_image
 
