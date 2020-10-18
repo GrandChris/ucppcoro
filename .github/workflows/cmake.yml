@@ -6,6 +6,13 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
+# Cache libraries in between jobs
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - vcpkg/
+    - build/vcpkg_installed
+
 jobs:
   build:
     # The CMake configure and build commands are platform agnostic and should work equally
@@ -14,11 +21,7 @@ jobs:
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: ubuntu-20.04
 
-    cache:
-    key: ${CI_COMMIT_REF_SLUG}
-    paths:
-      - vcpkg/
-      - build/vcpkg_installed
+
 
     steps:
     - uses: actions/checkout@v2
