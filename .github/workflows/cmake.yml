@@ -12,10 +12,8 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
-    runs:
-      using: "docker"
-      image: "../devcontainer/Dockerfile"
-    # container: ubuntu:groovy
+    runs-on: ubuntu-20.04
+    container: "../devcontainer/Dockerfile"
 
     steps:
     - uses: actions/checkout@v2
