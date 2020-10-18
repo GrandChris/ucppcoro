@@ -14,6 +14,12 @@ jobs:
     # See: https://docs.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow#configuring-a-build-matrix
     runs-on: ubuntu-20.04
 
+    cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - vcpkg/
+      - build/vcpkg_installed
+
     steps:
     - uses: actions/checkout@v2
 
