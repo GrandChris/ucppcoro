@@ -8,8 +8,8 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Include vcpkg as package manager
-set(CMAKE_TOOLCHAIN_FILE ./vcpkg/scripts/buildsystems/vcpkg.cmake
-  CACHE STRING "Vcpkg toolchain file")
+# set(CMAKE_TOOLCHAIN_FILE ./vcpkg/scripts/buildsystems/vcpkg.cmake
+#   CACHE STRING "Vcpkg toolchain file")
 
 
 # Create the project
