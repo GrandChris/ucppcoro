@@ -4,6 +4,15 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "clean",
+            "type": "shell",
+            "command": "git",
+            "args": [
+                "clean", "-xdf"
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "cmake_configure",
             "type": "shell",
             "command": "source",
