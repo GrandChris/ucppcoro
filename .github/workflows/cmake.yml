@@ -36,7 +36,7 @@ jobs:
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
-      shell: bash
+      # shell: bash
       # working-directory: ${{runner.workspace}}/build
       # Note the current convention is to use the -S and -B options here to specify source 
       # and build directories, but this is only available with CMake 3.13 and higher.  
@@ -44,7 +44,9 @@ jobs:
       # run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
       # run: source ${{runner.workspace}}/scirpts/cmake_configure.sh
       # run: source ./scripts/cmake_configure.sh
-      run: docker run -it -v $PWD:/srv -w/srv local_docker_image source ./scripts/cmake_configure.sh 
+      # run: docker run -it -v $PWD:/srv -w/srv local_docker_image source ./scripts/cmake_configure.sh 
+      run: docker run -v $(pwd):/srv -w/srv local_docker_image ls
+      # run: docker run -it -v ${PWD}:/srv -w/srv local_docker_image
 
     - name: Build
       # working-directory: ${{runner.workspace}}/build
