@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build docker images
-      run: docker build ./ --file .devcontainer/Dockerfile 
+      run: docker build ./ --file .devcontainer/Dockerfile -t local_docker_image
 
     # - name: Install packages
 
@@ -44,7 +44,7 @@ jobs:
       # run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
       # run: source ${{runner.workspace}}/scirpts/cmake_configure.sh
       # run: source ./scripts/cmake_configure.sh
-      run: docker run -it -v $PWD:/srv -w/srv ./ source ./scripts/cmake_configure.sh
+      run: docker run -it -v $PWD:/srv -w/srv local_docker_image source ./scripts/cmake_configure.sh 
 
     - name: Build
       # working-directory: ${{runner.workspace}}/build
