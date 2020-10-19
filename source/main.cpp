@@ -1,7 +1,6 @@
 
 
-#include "ucppcoro/promise.h"
-#include "ucppcoro/ucppcoro.h"
+#include "ucppcoro/Task.h"
 
 #include <iostream>
 #include <coroutine>
@@ -10,18 +9,43 @@
 
 using namespace std;
 
-// task doSomething()
-// {
-//     co_return;
-// }
-// task taskDoSomething = doSomething();
+Task doSomething()
+{
+    int a = 0;
+
+    cout << "Hello Coroutine!" << endl;
+
+    co_await std::suspend_always(); 
+
+    cout << "Hello Coroutine2!" << endl;
+
+    co_return; 
+}
+ 
+ 
 
 int main()
 {
-    // task ret = doSomething();
-    // size_t const size = sizeof(doSomething);
+     
+    Task taskDoSomething = doSomething(); 
 
-    cout << "Hello World!" << endl;
+    size_t const size = taskDoSomething.size();
+   
+
+  
+    // task ret = doSomething();
+    // size_t const size = sizeof(doSomething); 
+
+    cout << "Hello World!" << endl;   
+
+    bool running = true;
+    while(running) 
+    {
+        running = false;
+        running |= taskDoSomething.resume();
+    }
+
+
 
     return 0; 
-}
+} 

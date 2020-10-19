@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_TOOLCHAIN_FILE ./vcpkg/scripts/buildsystems/vcpkg.cmake
   CACHE STRING "Vcpkg toolchain file")
 
-  ################################### Library ################################
+################################### Library ################################
 
 # Create the project
 project(ucppcoro)
@@ -20,14 +20,18 @@ project(ucppcoro)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
+
 # Add executable
 add_executable(${PROJECT_NAME})
 
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
+
 # Add compile option
 target_compile_options(${PROJECT_NAME} PRIVATE
+  -fdiagnostics-color
   -fcoroutines 
   -Wall 
-  -Og
+  -O0
 )
 
 # Include directories
