@@ -100,7 +100,6 @@ inline bool Task::resume()
   }
   else {
     mHandle.resume();
-    mHandle.promise().
     return true;
   }
 }
