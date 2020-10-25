@@ -7,7 +7,7 @@ A header only library of C++ coroutine abstractions for C++20 coroutines optimiz
 [![Build Actions Status](https://github.com/GrandChris/ucppcoro/workflows/Tests/badge.svg)](https://github.com/GrandChris/ucppcoro/actions)
 
 
-# Usage:
+## Usage:
 The usage of C++ coroutines on an microcontroller is limited because coroutines use dynamic memory allocation to store their state. To avoid memory fragmentation, coroutines can only be 
 created at initialization phase. An example is provided below.
 
@@ -50,7 +50,7 @@ int main()
 } 
 ```
 
-# How to build and run the tests
+## How to build and run the tests
 While this is a header only library with no further dependencies and therefore the source code should compile with any capable C++20 compiler, testing is only configured for GCC-10 for the moment.  
   
 This repository contains a complete development environment for Docker and VSCode. You can use it with the VSCode extension
