@@ -8,15 +8,69 @@
 
 #pragma once
 
-#include "Task.h"
+#include <stddef.h>
+
+///
+/// \class      Promise
+/// \author     GrandChris
+/// \date       2020-10-25
+/// \brief      Promise of a coroutine (for class Task)
+///
+class Promise {
+public:
+
+///////////////////////////////////////////////////////////////////////////////
+// Constructors
+
+  Promise();
+
+///////////////////////////////////////////////////////////////////////////////
+// Public Methods
+
+  Task get_return_object();
+
+  std::suspend_always initial_suspend();
+  std::suspend_never final_suspend();
+
+  template<std::invocable T>
+  AwaitableLambda<T> await_transform(T functor);
+
+  void return_void();
+  void unhandled_exception();
+
+  bool finished() const;
+  bool resumable() const;
+  size_t size() const;
+
+  void* operator new( size_t count); 
+
+private:
+
+///////////////////////////////////////////////////////////////////////////////
+// Member Variables
+
+  bool mFinished = false;             // Indicates when the corouine has finished execution
+  size_t const mSize;                 // Allocated size of the coroutine (only for debugging/information purposes)
+  Delegate<bool()> mIsReady;          // Function indicating if the coroutine can be resumed
+
+///////////////////////////////////////////////////////////////////////////////
+// Static Variables
+
+  inline static size_t lastSize = 0;  // Place for operator new to store temporarily the allocated size
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Implementation
 
 ///
 /// \brief      Constructor
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline Task::promise_type::promise_type() : mSize(lastSize) {
-
+inline Promise::Promise() : mSize(lastSize) {
+  auto lbd = [](){return true;};
+  mIsReady.set(&lbd);
 }
 
 ///
@@ -24,8 +78,8 @@ inline Task::promise_type::promise_type() : mSize(lastSize) {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline Task Task::promise_type::get_return_object() { 
-  return Task(std::coroutine_handle<promise_type>::from_promise(*this)); 
+inline Task Promise::get_return_object() { 
+  return Task(std::coroutine_handle<Promise>::from_promise(*this)); 
 }
 
 ///
@@ -33,8 +87,8 @@ inline Task Task::promise_type::get_return_object() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline std::suspend_always Task::promise_type::initial_suspend() { 
-  std::cout << "initial_suspend" << std::endl;
+inline std::suspend_always Promise::initial_suspend() { 
+  // std::cout << "initial_suspend" << std::endl;
   return {}; 
 }
 
@@ -43,10 +97,25 @@ inline std::suspend_always Task::promise_type::initial_suspend() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline std::suspend_never Task::promise_type::final_suspend() { 
+inline std::suspend_never Promise::final_suspend() { 
   mFinished = true;
-  std::cout << "final_suspend" << std::endl;
+  // std::cout << "final_suspend" << std::endl;
   return {}; 
+}
+
+///
+/// \brief      Saves a reference to the awaitable object
+/// \author     GrandChris
+/// \date       2020-10-25
+/// \param      functor Lambda function returning "true" when ready
+///
+template<std::invocable T>
+AwaitableLambda<T> Promise::await_transform(T functor)
+{
+  AwaitableLambda awaitable(std::move(functor));
+  awaitable.registerDelegate(&mIsReady);
+
+  return awaitable;
 }
 
 ///
@@ -54,7 +123,7 @@ inline std::suspend_never Task::promise_type::final_suspend() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline void Task::promise_type::return_void() {
+inline void Promise::return_void() {
 
 }
 
@@ -63,7 +132,7 @@ inline void Task::promise_type::return_void() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline void Task::promise_type::unhandled_exception() {
+inline void Promise::unhandled_exception() {
 
 }
 
@@ -72,8 +141,17 @@ inline void Task::promise_type::unhandled_exception() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline bool Task::promise_type::finished() const {
+inline bool Promise::finished() const {
   return mFinished;
+}
+
+///
+/// \brief      Checks if the coroutine is waiting for a event
+/// \author     GrandChris
+/// \date       2020-10-25
+///
+bool Promise::resumable() const {
+  return mIsReady();
 }
 
 ///
@@ -81,7 +159,7 @@ inline bool Task::promise_type::finished() const {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline size_t Task::promise_type::size() const {
+inline size_t Promise::size() const {
   return mSize;
 }
 
@@ -90,7 +168,7 @@ inline size_t Task::promise_type::size() const {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline void* Task::promise_type::operator new( size_t count) {
+inline void* Promise::operator new( size_t count) {
   lastSize = count;
   return new char[count];
 }

@@ -1,1 +1,1 @@
-cmake -B ./build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake -B ./build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTS=TRUE

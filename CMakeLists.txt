@@ -7,11 +7,18 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-# Include vcpkg as package manager
-set(CMAKE_TOOLCHAIN_FILE ./vcpkg/scripts/buildsystems/vcpkg.cmake
-  CACHE STRING "Vcpkg toolchain file")
+set(ENABLE_TESTS FALSE CACHE STRING "Build all tests for this library")
 
-################################### Library ################################
+if(ENABLE_TESTS)
+
+  # Include vcpkg as package manager
+  set(CMAKE_TOOLCHAIN_FILE ./vcpkg/scripts/buildsystems/vcpkg.cmake
+    CACHE STRING "Vcpkg toolchain file")
+
+endif()
+
+############################################################################
+# Library
 
 # Create the project
 project(ucppcoro)
@@ -22,46 +29,101 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
 # Add executable
-add_executable(${PROJECT_NAME})
+add_library(${PROJECT_NAME})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 # Add compile option
 target_compile_options(${PROJECT_NAME} PRIVATE
-  -fdiagnostics-color
-  -fcoroutines 
-  -Wall 
+  $<$<CONFIG:Debug>:-fdiagnostics-color>
+  $<$<CONFIG:Debug>:-Wall>
+  $<$<CONFIG:Debug>:-O0>
   -O0
 )
 
+target_compile_options(${PROJECT_NAME} PUBLIC
+  -fcoroutines 
+)
+
 # Include directories
-target_include_directories(${PROJECT_NAME} PRIVATE "./include")
+target_include_directories(${PROJECT_NAME} PUBLIC "./include")
 
-# Add source files
-file(GLOB SOURCE_FILES CONFIGURE_DEPENDS
-    "./source/*.cpp"
-)
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
+  # Add source files
+  file(GLOB SOURCE_FILES CONFIGURE_DEPENDS
+      "./source/*.cpp"
+  )
 
-################################### Unit Tests ################################
+  target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 
-set(PROJECT_TEST_NAME ${PROJECT_NAME}_tests)
+############################################################################
+# Exe
 
-add_executable(${PROJECT_TEST_NAME})
+if(ENABLE_TESTS)
 
-# Add source files
-file(GLOB SOURCE_FILES_TEST CONFIGURE_DEPENDS
-    "./test/*.cpp"
-)
-target_sources(${PROJECT_TEST_NAME} PRIVATE ${SOURCE_FILES_TEST})
+  set(PROJECT_EXE_NAME ${PROJECT_NAME}_run)
 
-find_package(GTest CONFIG REQUIRED)
+  add_executable(${PROJECT_EXE_NAME})
 
-target_link_libraries(${PROJECT_TEST_NAME} PRIVATE GTest::gtest_main)
+  set_property(TARGET ${PROJECT_EXE_NAME} PROPERTY CXX_STANDARD 20)
 
-enable_testing()
-include(GoogleTest)
-gtest_discover_tests(${PROJECT_TEST_NAME})
+  target_compile_options(${PROJECT_EXE_NAME} PRIVATE
+    -fdiagnostics-color
+    -Wall 
+    $<$<CONFIG:Debug>:-O0>
+  )
+
+  # Add cppcoro
+  target_link_libraries(${PROJECT_EXE_NAME} PRIVATE ${PROJECT_NAME})
+
+  # Add source files
+  file(GLOB SOURCE_FILES_EXE CONFIGURE_DEPENDS
+      "./app/*.cpp"
+  )
+
+  target_sources(${PROJECT_EXE_NAME} PRIVATE ${SOURCE_FILES_EXE})
+
+endif()
+
+############################################################################
+# Unit Tests
+
+if(ENABLE_TESTS)
+
+  set(PROJECT_TEST_NAME ${PROJECT_NAME}_tests)
+
+  add_executable(${PROJECT_TEST_NAME})
+
+  set_property(TARGET ${PROJECT_TEST_NAME} PROPERTY CXX_STANDARD 20)
+
+  target_compile_options(${PROJECT_TEST_NAME} PRIVATE
+    -fdiagnostics-color
+    -Wall 
+    $<$<CONFIG:Debug>:-O0>
+    -O1
+    -g
+  )
+
+  # Add source files
+  file(GLOB SOURCE_FILES_TEST CONFIGURE_DEPENDS
+      "./test/*.cpp"
+  )
+
+  target_sources(${PROJECT_TEST_NAME} PRIVATE ${SOURCE_FILES_TEST})
+
+  # Add cppcoro
+  target_link_libraries(${PROJECT_TEST_NAME} PRIVATE ${PROJECT_NAME})
+
+  # Add GTest
+  find_package(GTest CONFIG REQUIRED)
+
+  target_link_libraries(${PROJECT_TEST_NAME} PRIVATE GTest::gtest_main)
+
+  enable_testing()
+  include(GoogleTest)
+  gtest_discover_tests(${PROJECT_TEST_NAME})
+
+endif()
+
 
 
 

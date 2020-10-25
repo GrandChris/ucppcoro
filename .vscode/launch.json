@@ -5,10 +5,31 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Starten",
+            "name": "App",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/ucppcoro",
+            "program": "${workspaceFolder}/build/ucppcoro_run",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Automatische Strukturierung und Einrückung für \"gdb\" aktivieren",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Unit Tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/ucppcoro_tests",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build",

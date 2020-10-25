@@ -8,68 +8,48 @@
 
 #pragma once
 
-#if !defined(__cpp_impl_coroutine)
-    #define __cpp_impl_coroutine 1  // just for intellisense to work properly
-#endif
+#include "AwaitableLambda.h"
 
-#include <coroutine>
+class Promise;
+
 #include <stddef.h>
-#include <iostream>
 
-struct awaitable {
-  bool await_ready() {
-    return false; 
-  }
-  void await_suspend(std::coroutine_handle<> h) {
-
-  }
-  void await_resume() {}
-};
-
-
-
+///
+/// \class      Task
+/// \author     GrandChris
+/// \date       2020-10-25
+/// \brief      Suspendable Task running a coroutine
+///
 class Task {
 public:
 
-  ///////////////////////////// Promise ///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Type Definitions
 
-  class promise_type {
-  public:
-    promise_type();
+  using promise_type = Promise;
 
-    Task get_return_object();
-
-    std::suspend_always initial_suspend();
-    std::suspend_never final_suspend();
-
-    void return_void();
-    void unhandled_exception();
-
-    bool finished() const;
-    size_t size() const;
-
-    void* operator new( size_t count); 
-
-  private:
-    bool mFinished = false;
-    size_t const mSize;
-    inline static size_t lastSize = 0;
-  };
-
-  ///////////////////////////// Public Methods ///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// Constructor
 
   Task(std::coroutine_handle<promise_type> handle);
+
+///////////////////////////////////////////////////////////////////////////////
+// Public Methods
 
   bool resume();
   size_t size() const;
 
 private:
-  std::coroutine_handle<promise_type> mHandle = nullptr;
+
+///////////////////////////////////////////////////////////////////////////////
+// Member Variables
+
+  std::coroutine_handle<promise_type> mHandle = nullptr;  // Holds the reference to the coroutine
 };
 
 
-
-// #######+++++++ Implementation +++++++#######
+///////////////////////////////////////////////////////////////////////////////
+// Implementation
 
 #include "Promise.h"
 
@@ -81,6 +61,7 @@ private:
 inline Task::Task(std::coroutine_handle<promise_type> handle) 
   : mHandle(handle)
   {
+    
   }
 
 ///
@@ -95,11 +76,13 @@ inline bool Task::resume()
     return false;
   }
 
-  if(mHandle.promise().finished()) {
+  if(mHandle.promise().finished() || mHandle.done()) {
     return false;
   }
   else {
-    mHandle.resume();
+    if(mHandle.promise().resumable()) {
+      mHandle.resume();
+    }
     return true;
   }
 }
@@ -113,6 +96,6 @@ inline size_t Task::size() const {
   if(mHandle == nullptr) {
     return 0;
   }
-  
+
   return mHandle.promise().size();
 }
