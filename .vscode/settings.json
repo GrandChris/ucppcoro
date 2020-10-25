@@ -55,6 +55,7 @@
         "forward_list": "cpp",
         "list": "cpp",
         "unordered_set": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "chrono": "cpp"
     }
 }

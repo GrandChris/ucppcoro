@@ -15,7 +15,8 @@
 	"extensions": [
 		"eamodio.gitlens",
 		"ms-vscode.cpptools",
-		"twxs.cmake"
+		"twxs.cmake",
+		"streetsidesoftware.code-spell-checker"
 	]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

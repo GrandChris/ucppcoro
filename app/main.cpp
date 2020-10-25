@@ -2,116 +2,72 @@
 // \file       main.cpp
 // \author     GrandChris
 // \date       2020-10-14
-// \brief      Space to try out things
+// \brief      Example project
 //
 
 #include "ucppcoro/Task.h"
 
+#include <chrono>
 #include <iostream>
-
-
-
-class Functor3 {
-public:
-    bool operator()() {return true;}
-};
-
 
 using namespace std;
 
-Task doSomething()
-{
-    int a = 0;
+// Desktop implementations for hardware abstraction
 
-    cout << "Hello Coroutine!" << endl;
-
-    // auto awaitable1 = std::suspend_always(); 
-    //  co_await awaitable1; 
-
-    cout << "Hello Coroutine2!" << endl;
-
-    [[maybe_unused]] auto lbd = [a](){return a == 0;};
-    // AwaitableExpression awaitable(lbd);
-
-    // co_await awaitable;
-
-    // co_await lbd;
-     co_await [a](){
-         return a == 0;
-    };
-
-    // co_await AwaitableExpression([](){return false;});
-
-    Functor3 functor;
-    co_await functor;
-
-    co_return; 
-}
- 
- class Functor {
-     public:
-     bool operator()() {return true;}
-
-     bool ready();
- };
-
-
-  class Functor2 {
-     public:
-
-     bool ready() {return false;};
-
-     void bla(int k) {
-
-     }
- };
-
-
-typedef void (*invoke_fn_t)(char*);
-
-int main()
-{
-    // Functor2 functor;
-
-    // Delegate<bool()> delegate;
-
-    // delegate.set<Functor2, &Functor2::ready>(&functor);
-
-    // bool val = delegate();
-
-    // Delegate<void(int)> delegate2;
-
-    // delegate2.set<Functor2, &Functor2::bla>(&functor);
-
-
-    // Functor functor;
-
-    // void * object = &functor;
-    // bool (Functor2::*isReady)();
-    // isReady = (bool (Functor2::*)())(&Functor::ready);
-
-    // auto f = reinterpret_cast<invoke_fn_t>(functor);
-
-     
-    Task taskDoSomething = doSomething(); 
-
-    [[maybe_unused]] size_t const size = taskDoSomething.size();
-   
-
-  
-    // task ret = doSomething();
-    // size_t const size = sizeof(doSomething); 
-
-    cout << "Hello World!" << endl;   
-
-    bool running = true;
-    while(running) 
-    {
-        running = false;
-        running |= taskDoSomething.resume();
+class Led {
+public:
+    void on() {
+        cout << 1 << endl;
     }
 
+    void off() {
+        cout << 0 << endl;
+    }
+};
 
+uint64_t getTimeMs() {
+    auto t = std::chrono::high_resolution_clock::now();
+    auto t_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(t);
+    auto ms = t_ms.time_since_epoch().count();
+
+    return ms;
+}
+
+
+// Microcontroller like implementation
+
+
+auto delay(size_t const ms) 
+{
+    uint64_t const time = getTimeMs() + ms;
+    return [time] { return getTimeMs() >= time; };
+}
+
+
+Task blinky(Led & led) 
+{
+    while(true) {
+        led.on();
+        co_await delay(1000);
+        led.off();
+        co_await delay(500);
+    }
+}
+
+
+int main()
+{     
+    Led led1;
+    Led led2;
+
+    Task task1 = blinky(led1); 
+    Task task2 = blinky(led2); 
+
+    while(true) 
+    {
+        task1.resume();
+        task2.resume();
+    }
 
     return 0; 
 } 
