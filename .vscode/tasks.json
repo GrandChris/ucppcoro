@@ -13,11 +13,20 @@
             "problemMatcher": []
         },
         {
-            "label": "cmake_configure",
+            "label": "cmake_configure debug",
             "type": "shell",
             "command": "source",
             "args": [
-                "./scripts/cmake_configure.sh"
+                "./scripts/cmake_configure_debug.sh"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "cmake_configure release",
+            "type": "shell",
+            "command": "source",
+            "args": [
+                "./scripts/cmake_configure_release.sh"
             ],
             "problemMatcher": []
         },

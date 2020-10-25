@@ -37,8 +37,8 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 target_compile_options(${PROJECT_NAME} PRIVATE
   $<$<CONFIG:Debug>:-fdiagnostics-color>
   $<$<CONFIG:Debug>:-Wall>
-  $<$<CONFIG:Debug>:-O0>
-  -O0
+  $<$<CONFIG:Debug>:-g -O0>
+  $<$<CONFIG:Release>:-g -O3>
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC
@@ -69,7 +69,8 @@ if(ENABLE_TESTS)
   target_compile_options(${PROJECT_EXE_NAME} PRIVATE
     -fdiagnostics-color
     -Wall 
-    $<$<CONFIG:Debug>:-O0>
+    $<$<CONFIG:Debug>:-g -O0>
+    $<$<CONFIG:Release>:-g -O3>
   )
 
   # Add cppcoro
@@ -98,9 +99,8 @@ if(ENABLE_TESTS)
   target_compile_options(${PROJECT_TEST_NAME} PRIVATE
     -fdiagnostics-color
     -Wall 
-    $<$<CONFIG:Debug>:-O0>
-    -O1
-    -g
+    $<$<CONFIG:Debug>:-g -O0>
+    $<$<CONFIG:Release>:-g -O3>
   )
 
   # Add source files

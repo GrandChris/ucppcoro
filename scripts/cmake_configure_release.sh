@@ -1,0 +1,1 @@
+cmake -B ./build -S . -G Ninja -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTS=TRUE

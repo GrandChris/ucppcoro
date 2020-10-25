@@ -8,7 +8,7 @@ env:
 
 
 jobs:
-  build:
+  build_debug:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
@@ -24,8 +24,21 @@ jobs:
     - name: Build docker images
       run: docker build ./ --file .devcontainer/Dockerfile -t local_docker_image
 
-    - name: Configure CMake
-      run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/cmake_configure.sh"
+      # Build and test debug version
+
+    - name: Configure CMake debug
+      run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/cmake_configure_debug.sh"
+
+    - name: Build
+      run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/build.sh"
+
+    - name: Test
+      run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/test.sh"
+
+      # Build and test release version
+
+    - name: Configure CMake release
+      run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/cmake_configure_release.sh"
 
     - name: Build
       run: docker run -v $(pwd):/srv -w/srv local_docker_image /bin/bash "./scripts/build.sh"

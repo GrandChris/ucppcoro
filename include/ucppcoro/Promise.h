@@ -39,7 +39,7 @@ public:
   void unhandled_exception();
 
   bool finished() const;
-  bool resumable() const;
+  bool resumable();
   size_t size() const;
 
   void* operator new( size_t count); 
@@ -115,6 +115,8 @@ AwaitableLambda<T> Promise::await_transform(T functor)
   AwaitableLambda awaitable(std::move(functor));
   awaitable.registerDelegate(&mIsReady);
 
+  mFinished = false;
+
   return awaitable;
 }
 
@@ -150,8 +152,12 @@ inline bool Promise::finished() const {
 /// \author     GrandChris
 /// \date       2020-10-25
 ///
-bool Promise::resumable() const {
-  return mIsReady();
+bool Promise::resumable() {
+
+  bool const isReady = mIsReady();
+  mFinished = isReady;
+
+  return isReady;
 }
 
 ///
