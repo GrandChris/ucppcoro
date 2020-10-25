@@ -4,7 +4,7 @@
 A header only library of C++ coroutine abstractions for C++20 coroutines optimized for the use on a microcontroller  
 
 ## Build Status
-[![Build Actions Status](https://github.com/GrandChris/ucppcoro/workflows/Build Pipeline/badge.svg)](https://github.com/GrandChris/ucppcoro/actions)
+[![Build Actions Status](https://github.com/GrandChris/ucppcoro/workflows/Tests/badge.svg)](https://github.com/GrandChris/ucppcoro/actions)
 
 
 # Usage:
@@ -56,7 +56,7 @@ While this is a header only library with no further dependencies and therefore t
 This repository contains a complete development environment for Docker and VSCode. You can use it with the VSCode extension
 [ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).  
   
-To run the tests run:
+To run the tests, run:
 
 ```bash
 cmake -B ./build -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTS=TRUE

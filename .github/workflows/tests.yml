@@ -1,4 +1,4 @@
-name: Build Pipeline
+name: Tests
 
 on: [push]
 
