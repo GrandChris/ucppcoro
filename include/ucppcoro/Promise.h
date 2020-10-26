@@ -16,6 +16,7 @@
 /// \date       2020-10-25
 /// \brief      Promise of a coroutine (for class Task)
 ///
+template<size_t SIZE>
 class Promise {
 public:
 
@@ -27,7 +28,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // Public Methods
 
-  Task get_return_object();
+  Task<SIZE> get_return_object();
+
+  
 
   std::suspend_always initial_suspend();
   std::suspend_never final_suspend();
@@ -40,9 +43,14 @@ public:
 
   bool finished() const;
   bool resumable();
-  size_t size() const;
 
-  void* operator new( size_t count); 
+  ///////////////////////////////////////////////////////////////////////////////
+  // Static functions
+
+  void* operator new( size_t count) noexcept; 
+  void operator delete(void *) noexcept;
+
+  static Task<SIZE> get_return_object_on_allocation_failure();
 
 private:
 
@@ -50,25 +58,28 @@ private:
 // Member Variables
 
   bool mFinished = false;             // Indicates when the corouine has finished execution
-  size_t const mSize;                 // Allocated size of the coroutine (only for debugging/information purposes)
   Delegate<bool()> mIsReady;          // Function indicating if the coroutine can be resumed
 
 ///////////////////////////////////////////////////////////////////////////////
 // Static Variables
 
-  inline static size_t lastSize = 0;  // Place for operator new to store temporarily the allocated size
+  static inline std::array<std::byte, SIZE> memory = {};
+  static inline size_t lastSize = 0;  // Place for operator new to store temporarily the allocated size
 };
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Implementation
 
+#include <iostream>
+
 ///
 /// \brief      Constructor
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline Promise::Promise() : mSize(lastSize) {
+template<size_t SIZE>
+inline Promise<SIZE>::Promise() {
   auto lbd = [](){return true;};
   mIsReady.set(&lbd);
 }
@@ -78,8 +89,22 @@ inline Promise::Promise() : mSize(lastSize) {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline Task Promise::get_return_object() { 
-  return Task(std::coroutine_handle<Promise>::from_promise(*this)); 
+template<size_t SIZE>
+inline Task<SIZE> Promise<SIZE>::get_return_object() { 
+  auto handle= std::coroutine_handle<Promise<SIZE>>::from_promise(*this); 
+  auto address = handle.address();
+  auto address2 = memory.data();
+  return Task<SIZE>(memory, lastSize); 
+}
+
+///
+/// \brief      Construct a Task on allocation failure
+/// \author     GrandChris
+/// \date       2020-10-26
+///
+template<size_t SIZE>
+Task<SIZE> Promise<SIZE>::get_return_object_on_allocation_failure() {
+  return Task<SIZE>(lastSize);
 }
 
 ///
@@ -87,8 +112,9 @@ inline Task Promise::get_return_object() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline std::suspend_always Promise::initial_suspend() { 
-  // std::cout << "initial_suspend" << std::endl;
+template<size_t SIZE>
+inline std::suspend_always Promise<SIZE>::initial_suspend() { 
+  std::cout << "initial_suspend" << std::endl;
   return {}; 
 }
 
@@ -97,9 +123,10 @@ inline std::suspend_always Promise::initial_suspend() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline std::suspend_never Promise::final_suspend() { 
+template<size_t SIZE>
+inline std::suspend_never Promise<SIZE>::final_suspend() { 
   mFinished = true;
-  // std::cout << "final_suspend" << std::endl;
+  std::cout << "final_suspend" << std::endl;
   return {}; 
 }
 
@@ -109,8 +136,9 @@ inline std::suspend_never Promise::final_suspend() {
 /// \date       2020-10-25
 /// \param      functor Lambda function returning "true" when ready
 ///
+template<size_t SIZE>
 template<std::invocable T>
-AwaitableLambda<T> Promise::await_transform(T functor)
+AwaitableLambda<T> Promise<SIZE>::await_transform(T functor)
 {
   AwaitableLambda awaitable(std::move(functor));
   awaitable.registerDelegate(&mIsReady);
@@ -125,8 +153,9 @@ AwaitableLambda<T> Promise::await_transform(T functor)
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline void Promise::return_void() {
-
+template<size_t SIZE>
+inline void Promise<SIZE>::return_void() {
+  mFinished = true;
 }
 
 ///
@@ -134,7 +163,8 @@ inline void Promise::return_void() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline void Promise::unhandled_exception() {
+template<size_t SIZE>
+inline void Promise<SIZE>::unhandled_exception() {
 
 }
 
@@ -143,7 +173,8 @@ inline void Promise::unhandled_exception() {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline bool Promise::finished() const {
+template<size_t SIZE>
+inline bool Promise<SIZE>::finished() const {
   return mFinished;
 }
 
@@ -152,21 +183,13 @@ inline bool Promise::finished() const {
 /// \author     GrandChris
 /// \date       2020-10-25
 ///
-bool Promise::resumable() {
+template<size_t SIZE>
+bool Promise<SIZE>::resumable() {
 
   bool const isReady = mIsReady();
-  mFinished = isReady;
+  // mFinished = isReady;
 
   return isReady;
-}
-
-///
-/// \brief      Returns the allocated size of the coroutine
-/// \author     GrandChris
-/// \date       2020-10-19
-///
-inline size_t Promise::size() const {
-  return mSize;
 }
 
 ///
@@ -174,7 +197,28 @@ inline size_t Promise::size() const {
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
-inline void* Promise::operator new( size_t count) {
+template<size_t SIZE>
+inline void* Promise<SIZE>::operator new( size_t count) noexcept 
+{
   lastSize = count;
-  return new char[count];
+
+  if(count <= SIZE) {
+    return new(memory.data()) std::byte[count];
+  }
+  else {
+    return nullptr;
+  }
+}
+
+///
+/// \brief      Allocates the memory for the coroutine
+/// \author     GrandChris
+/// \date       2020-10-19
+///
+template<size_t SIZE>
+inline void Promise<SIZE>::operator delete(void *) noexcept
+{
+  // memory is stored in a member variable on class "Task<>"
+  // nothing to do here
+  int a = 0;
 }

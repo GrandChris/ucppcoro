@@ -39,6 +39,9 @@ target_compile_options(${PROJECT_NAME} PRIVATE
   $<$<CONFIG:Debug>:-Wall>
   $<$<CONFIG:Debug>:-g -O0>
   $<$<CONFIG:Release>:-g -O3>
+  # -fsanitize=address 
+  # -fsanitize=undefined
+  -fno-omit-frame-pointer
 )
 
 target_compile_options(${PROJECT_NAME} PUBLIC
@@ -69,12 +72,18 @@ if(ENABLE_TESTS)
   target_compile_options(${PROJECT_EXE_NAME} PRIVATE
     -fdiagnostics-color
     -Wall 
+    -fsanitize=address 
+    # -fsanitize=undefined
+    -fno-omit-frame-pointer
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-g -O3>
   )
 
   # Add cppcoro
-  target_link_libraries(${PROJECT_EXE_NAME} PRIVATE ${PROJECT_NAME})
+  target_link_libraries(${PROJECT_EXE_NAME} PRIVATE 
+    ${PROJECT_NAME}
+    asan
+  )
 
   # Add source files
   file(GLOB SOURCE_FILES_EXE CONFIGURE_DEPENDS
@@ -99,6 +108,9 @@ if(ENABLE_TESTS)
   target_compile_options(${PROJECT_TEST_NAME} PRIVATE
     -fdiagnostics-color
     -Wall 
+    # -fsanitize=address 
+    # -fsanitize=undefined
+    -fno-omit-frame-pointer
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-g -O3>
   )

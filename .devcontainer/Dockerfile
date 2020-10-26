@@ -9,4 +9,4 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends --reinstall ca-certificates \
     && apt-get -y install --no-install-recommends git build-essential gdb cmake ninja-build curl unzip tar
 
-
+# RUN apt-get -y install --no-install-recommends libubsan1 libasan6 liblsan0
