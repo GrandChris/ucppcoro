@@ -5,7 +5,6 @@
 // \brief      A promise for a coroutine
 //
 
-
 #pragma once
 
 #include <stddef.h>
@@ -30,8 +29,6 @@ public:
 
   Task<SIZE> get_return_object();
 
-  
-
   std::suspend_always initial_suspend();
   std::suspend_never final_suspend();
 
@@ -48,7 +45,7 @@ public:
   // Static functions
 
   void* operator new( size_t count) noexcept; 
-  void operator delete(void *) noexcept;
+  void operator delete(void * mem) noexcept;
 
   static Task<SIZE> get_return_object_on_allocation_failure();
 
@@ -57,13 +54,13 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 // Member Variables
 
-  bool mFinished = false;             // Indicates when the corouine has finished execution
+  bool mFinished = false;             // Indicates when the coroutine has finished execution
   Delegate<bool()> mIsReady;          // Function indicating if the coroutine can be resumed
 
 ///////////////////////////////////////////////////////////////////////////////
 // Static Variables
 
-  static inline std::array<std::byte, SIZE> memory = {};
+  static inline std::array<std::byte, SIZE> memory = {}; // Place for operator new to store temporarily the coroutine data
   static inline size_t lastSize = 0;  // Place for operator new to store temporarily the allocated size
 };
 
@@ -71,7 +68,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 // Implementation
 
-#include <iostream>
+// #include <iostream>
 
 ///
 /// \brief      Constructor
@@ -91,9 +88,6 @@ inline Promise<SIZE>::Promise() {
 ///
 template<size_t SIZE>
 inline Task<SIZE> Promise<SIZE>::get_return_object() { 
-  auto handle= std::coroutine_handle<Promise<SIZE>>::from_promise(*this); 
-  auto address = handle.address();
-  auto address2 = memory.data();
   return Task<SIZE>(memory, lastSize); 
 }
 
@@ -114,7 +108,7 @@ Task<SIZE> Promise<SIZE>::get_return_object_on_allocation_failure() {
 ///
 template<size_t SIZE>
 inline std::suspend_always Promise<SIZE>::initial_suspend() { 
-  std::cout << "initial_suspend" << std::endl;
+  // std::cout << "initial_suspend" << std::endl;
   return {}; 
 }
 
@@ -126,7 +120,7 @@ inline std::suspend_always Promise<SIZE>::initial_suspend() {
 template<size_t SIZE>
 inline std::suspend_never Promise<SIZE>::final_suspend() { 
   mFinished = true;
-  std::cout << "final_suspend" << std::endl;
+  // std::cout << "final_suspend" << std::endl;
   return {}; 
 }
 
@@ -143,8 +137,6 @@ AwaitableLambda<T> Promise<SIZE>::await_transform(T functor)
   AwaitableLambda awaitable(std::move(functor));
   awaitable.registerDelegate(&mIsReady);
 
-  mFinished = false;
-
   return awaitable;
 }
 
@@ -159,13 +151,13 @@ inline void Promise<SIZE>::return_void() {
 }
 
 ///
-/// \brief      An exeption has been thrown
+/// \brief      An exception has been thrown
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
 template<size_t SIZE>
 inline void Promise<SIZE>::unhandled_exception() {
-
+  // it is intended to be used with exceptions disabled
 }
 
 ///
@@ -185,11 +177,7 @@ inline bool Promise<SIZE>::finished() const {
 ///
 template<size_t SIZE>
 bool Promise<SIZE>::resumable() {
-
-  bool const isReady = mIsReady();
-  // mFinished = isReady;
-
-  return isReady;
+  return mIsReady();
 }
 
 ///
@@ -211,14 +199,15 @@ inline void* Promise<SIZE>::operator new( size_t count) noexcept
 }
 
 ///
-/// \brief      Allocates the memory for the coroutine
+/// \brief      Frees the memory of the coroutine
 /// \author     GrandChris
 /// \date       2020-10-19
 ///
 template<size_t SIZE>
-inline void Promise<SIZE>::operator delete(void *) noexcept
+inline void Promise<SIZE>::operator delete(void * mem) noexcept
 {
-  // memory is stored in a member variable on class "Task<>"
+  // memory is kept in a member variable of class "Task<>"
+  // it will be deleted when the Task object goes out of scope
+
   // nothing to do here
-  int a = 0;
 }

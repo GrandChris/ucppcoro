@@ -25,13 +25,12 @@ TEST(Task, Lambda)
         }
     };
 
-    testSize(Test::routine);
+    [[maybe_unused]] size_t const size = testSize(Test::routine);
 
     int a = 0;
     int b = 0;
 
-    Task<200> task = Test::routine(a, b);
-    [[maybe_unused]] size_t const size = task.size();
+    Task task = Test::routine(a, b);
 
     EXPECT_EQ(a, 0);
     EXPECT_EQ(b, 0);
@@ -72,13 +71,12 @@ TEST(Task, Lambda2)
         }
     };
 
-    testSize(Test::routine);
+    [[maybe_unused]] size_t const size = testSize(Test::routine);
 
     int a = 0;
     int b = 0;
 
-    Task<200> task = Test::routine(a, b);
-    [[maybe_unused]] size_t const size = task.size();
+    Task task = Test::routine(a, b);
 
     EXPECT_EQ(a, 0);
     EXPECT_EQ(b, 0);

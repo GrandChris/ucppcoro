@@ -56,7 +56,7 @@ struct argument_type<R (*)(Args...)>
 /// \class      is_function_ptr
 /// \author     GrandChris
 /// \date       2020-10-26
-/// \brief      Determines if the Template is a function pointer 
+/// \brief      Determines if the template is a function pointer 
 ///
 template<typename T>
 struct is_function_ptr {

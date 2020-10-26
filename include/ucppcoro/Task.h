@@ -41,8 +41,6 @@ public:
 
   Task(size_t const allocSize);
 
-  Task(std::coroutine_handle<promise_type> handle, size_t const allocSize);
-
   Task(std::array<std::byte, SIZE> & memory, size_t const allocSize);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -58,9 +56,8 @@ private:
 // Member Variables
   
   std::coroutine_handle<promise_type> mHandle = nullptr;  // Holds the reference to the coroutine
-  size_t const mAllocSize = 0;
-
-  std::array<std::byte, SIZE> mMemory = {};
+  size_t const mAllocSize = 0;                            // Allocated size of the coroutine
+  std::array<std::byte, SIZE> mMemory = {};               // Memory to store the coroutine
 };
 
 
@@ -87,23 +84,13 @@ inline Task<SIZE>::Task(size_t const allocSize)
 /// \date       2020-10-19
 ///
 template<size_t SIZE>
-inline Task<SIZE>::Task(std::coroutine_handle<promise_type> handle, size_t const allocSize) 
-  : mHandle(handle),
-    mAllocSize(allocSize)
-{
-  
-}
-
-template<size_t SIZE>
 inline Task<SIZE>::Task(std::array<std::byte, SIZE> & memory, size_t const allocSize) 
 : mAllocSize(allocSize),
-  mMemory(memory)
+  mMemory(memory) // copy memory of the allocated coroutine into the local object
 {
-  Promise<SIZE> * pPromise = reinterpret_cast<Promise<SIZE> *>(mMemory.data());
-
   mHandle = std::coroutine_handle<Promise<SIZE>>::from_address(mMemory.data());
-  // mHandle = std::coroutine_handle<Promise<SIZE>>::from_promise(*pPromise);
-  memory.fill(std::byte());
+
+  memory.fill(std::byte()); // clear old memory, just to be sure
 }
 
 ///
@@ -148,6 +135,6 @@ inline size_t Task<SIZE>::size() const {
 template<size_t SIZE>
 inline void Task<SIZE>::destroy() 
 {
-  // mHandle.destroy();
+  // mHandle.destroy(); // Does not work with placement new 
   mHandle = nullptr;
 }

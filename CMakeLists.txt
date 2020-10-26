@@ -16,8 +16,8 @@ if(ENABLE_TESTS)
     CACHE STRING "Vcpkg toolchain file")
 
   # Sanitizers https://github.com/google/sanitizers
-  set(LIBASAN asan)   # Address sanitizer
-  set(LIBLSAN lsan)   # Leak sanitizer
+  set(LIBASAN  asan)  # Address sanitizer
+  set(LIBLSAN  lsan)  # Leak sanitizer
   set(LIBUBSAN ubsan) # Undefined behavior sanitizer
 
 endif()
@@ -50,12 +50,14 @@ if(ENABLE_TESTS)
 
   target_compile_options(${PROJECT_EXE_NAME} PRIVATE
     -fcoroutines 
+
     -fdiagnostics-color
     -Wall 
+
     -fsanitize=address 
     -fsanitize=undefined
     -fsanitize=leak
-    -fno-omit-frame-pointer
+
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-g -O3>
   )
@@ -90,12 +92,14 @@ if(ENABLE_TESTS)
 
   target_compile_options(${PROJECT_TEST_NAME} PRIVATE
     -fcoroutines 
+
     -fdiagnostics-color
     -Wall 
+
     -fsanitize=address 
     -fsanitize=undefined
     -fsanitize=leak
-    -fno-omit-frame-pointer
+
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-g -O3>
   )

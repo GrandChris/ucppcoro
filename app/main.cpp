@@ -22,11 +22,11 @@ public:
     Led(std::string const & name) : mName(name) {}
 
     void on() {
-        cout << mName << ": " << 1 << endl;
+        cout << mName << ": " << "on" << endl;
     }
 
     void off() {
-        cout << mName << ": " << 0 << endl;
+        cout << mName << ": " << "off" << endl;
     }
 
 private:
@@ -68,8 +68,6 @@ auto const blinky_size = testSize(blinky);
 
 int main()
 {    
-    char * bla = new char;
-
     Led led1("led1");
     Led led2("led2");
     Led led3("led3");
