@@ -56,6 +56,7 @@
         "list": "cpp",
         "unordered_set": "cpp",
         "fstream": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "ratio": "cpp"
     }
 }

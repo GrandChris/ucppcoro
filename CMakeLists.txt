@@ -15,6 +15,11 @@ if(ENABLE_TESTS)
   set(CMAKE_TOOLCHAIN_FILE ./vcpkg/scripts/buildsystems/vcpkg.cmake
     CACHE STRING "Vcpkg toolchain file")
 
+  # Sanitizers https://github.com/google/sanitizers
+  set(LIBASAN  asan)  # Address sanitizer
+  set(LIBLSAN  lsan)  # Leak sanitizer
+  set(LIBUBSAN ubsan) # Undefined behavior sanitizer
+
 endif()
 
 ############################################################################
@@ -26,34 +31,11 @@ project(ucppcoro)
 # Export compile commands for VSCode C++ Intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-
-
 # Add executable
-add_library(${PROJECT_NAME})
-
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
-
-# Add compile option
-target_compile_options(${PROJECT_NAME} PRIVATE
-  $<$<CONFIG:Debug>:-fdiagnostics-color>
-  $<$<CONFIG:Debug>:-Wall>
-  $<$<CONFIG:Debug>:-g -O0>
-  $<$<CONFIG:Release>:-g -O3>
-)
-
-target_compile_options(${PROJECT_NAME} PUBLIC
-  -fcoroutines 
-)
+add_library(${PROJECT_NAME} INTERFACE)
 
 # Include directories
-target_include_directories(${PROJECT_NAME} PUBLIC "./include")
-
-  # Add source files
-  file(GLOB SOURCE_FILES CONFIGURE_DEPENDS
-      "./source/*.cpp"
-  )
-
-  target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} INTERFACE "./include")
 
 ############################################################################
 # Exe
@@ -67,21 +49,33 @@ if(ENABLE_TESTS)
   set_property(TARGET ${PROJECT_EXE_NAME} PROPERTY CXX_STANDARD 20)
 
   target_compile_options(${PROJECT_EXE_NAME} PRIVATE
+    -fcoroutines 
+
     -fdiagnostics-color
     -Wall 
+
+    -fsanitize=address 
+    -fsanitize=undefined
+    -fsanitize=leak
+
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-g -O3>
   )
 
-  # Add cppcoro
-  target_link_libraries(${PROJECT_EXE_NAME} PRIVATE ${PROJECT_NAME})
-
   # Add source files
   file(GLOB SOURCE_FILES_EXE CONFIGURE_DEPENDS
-      "./app/*.cpp"
+    "./app/*.cpp"
   )
 
   target_sources(${PROJECT_EXE_NAME} PRIVATE ${SOURCE_FILES_EXE})
+
+  # Add cppcoro
+  target_link_libraries(${PROJECT_EXE_NAME} PRIVATE 
+    ${PROJECT_NAME}
+    ${LIBASAN}
+    ${LIBLSAN}
+    ${LIBUBSAN}
+  )
 
 endif()
 
@@ -97,8 +91,15 @@ if(ENABLE_TESTS)
   set_property(TARGET ${PROJECT_TEST_NAME} PROPERTY CXX_STANDARD 20)
 
   target_compile_options(${PROJECT_TEST_NAME} PRIVATE
+    -fcoroutines 
+
     -fdiagnostics-color
     -Wall 
+
+    -fsanitize=address 
+    -fsanitize=undefined
+    -fsanitize=leak
+
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-g -O3>
   )
@@ -111,7 +112,12 @@ if(ENABLE_TESTS)
   target_sources(${PROJECT_TEST_NAME} PRIVATE ${SOURCE_FILES_TEST})
 
   # Add cppcoro
-  target_link_libraries(${PROJECT_TEST_NAME} PRIVATE ${PROJECT_NAME})
+  target_link_libraries(${PROJECT_TEST_NAME} PRIVATE 
+    ${PROJECT_NAME}
+    ${LIBASAN}
+    ${LIBLSAN}
+    ${LIBUBSAN}
+  )
 
   # Add GTest
   find_package(GTest CONFIG REQUIRED)

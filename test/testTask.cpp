@@ -6,6 +6,7 @@
 //
 
 #include "ucppcoro/Task.h"
+#include "ucppcoro/TestSize.h"
 
 #include <gtest/gtest.h>
 
@@ -13,7 +14,7 @@
 TEST(Task, Lambda)
 {
     struct Test {
-         static Task routine(int & a, int & b) {
+         static Task<200> routine(int & a, int & b) {
             b = 1;
 
             co_await [&a](){
@@ -24,11 +25,12 @@ TEST(Task, Lambda)
         }
     };
 
+    [[maybe_unused]] size_t const size = testSize(Test::routine);
+
     int a = 0;
     int b = 0;
 
     Task task = Test::routine(a, b);
-    [[maybe_unused]] size_t const size = task.size();
 
     EXPECT_EQ(a, 0);
     EXPECT_EQ(b, 0);
@@ -56,7 +58,7 @@ TEST(Task, Lambda)
 TEST(Task, Lambda2)
 {
     struct Test {
-         static Task routine(int & a, int & b) {
+         static Task<200> routine(int & a, int & b) {
             b = 1;
 
             auto lbd = [&a](){
@@ -69,11 +71,12 @@ TEST(Task, Lambda2)
         }
     };
 
+    [[maybe_unused]] size_t const size = testSize(Test::routine);
+
     int a = 0;
     int b = 0;
 
     Task task = Test::routine(a, b);
-    [[maybe_unused]] size_t const size = task.size();
 
     EXPECT_EQ(a, 0);
     EXPECT_EQ(b, 0);

@@ -6,6 +6,7 @@
 //
 
 #include "ucppcoro/Task.h"
+#include "ucppcoro/TestSize.h"
 
 #include <chrono>
 #include <iostream>
@@ -16,13 +17,20 @@ using namespace std;
 
 class Led {
 public:
+    Led() = default;
+
+    Led(std::string const & name) : mName(name) {}
+
     void on() {
-        cout << 1 << endl;
+        cout << mName << ": " << "on" << endl;
     }
 
     void off() {
-        cout << 0 << endl;
+        cout << mName << ": " << "off" << endl;
     }
+
+private:
+    std::string mName;
 };
 
 uint64_t getTimeMs() {
@@ -44,29 +52,39 @@ auto delay(size_t const ms)
 }
 
 
-Task blinky(Led & led) 
+Task<128> blinky(Led & led) 
 {
     while(true) {
         led.on();
         co_await delay(1000);
         led.off();
-        co_await delay(500);
+        co_await delay(500); 
+
+        co_return;       
     }
 }
+auto const blinky_size = testSize(blinky);
 
 
 int main()
-{     
-    Led led1;
-    Led led2;
+{    
+    Led led1("led1");
+    Led led2("led2");
+    Led led3("led3");
 
     Task task1 = blinky(led1); 
     Task task2 = blinky(led2); 
+    Task task3 = blinky(led3); 
 
-    while(true) 
+    [[maybe_unused]] volatile int i = 0;
+
+    bool running = true;
+    while(running) 
     {
-        task1.resume();
-        task2.resume();
+        running = false;
+        running |= task1.resume();
+        running |= task2.resume();
+        running |= task3.resume();
     }
 
     return 0; 
