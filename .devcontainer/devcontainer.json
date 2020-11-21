@@ -17,7 +17,8 @@
 		"ms-vscode.cpptools",
 		"twxs.cmake",
 		"streetsidesoftware.code-spell-checker",
-		"matepek.vscode-catch2-test-adapter"
+		"matepek.vscode-catch2-test-adapter",
+		"grandchris.just-let-me-click-this-freaking-paths"
 	]
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

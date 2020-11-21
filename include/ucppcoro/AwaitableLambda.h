@@ -88,7 +88,7 @@ inline AwaitableLambda<T>::AwaitableLambda(AwaitableLambda<T> && other) :
 {
     // also move the reference of the delegate to the new object
     if(mAwaitReadyReference != nullptr) {
-        mAwaitReadyReference->set<AwaitableLambda<T>, &AwaitableLambda<T>::await_ready>(this);
+        mAwaitReadyReference->set<&AwaitableLambda<T>::await_ready>(this);
     }
 }
 
@@ -104,7 +104,7 @@ inline void AwaitableLambda<T>::registerDelegate(Delegate<bool()> * delegate) {
     mAwaitReadyReference = delegate;
 
     if(mAwaitReadyReference != nullptr) {
-        mAwaitReadyReference->set<AwaitableLambda<T>, &AwaitableLambda<T>::await_ready>(this);
+        mAwaitReadyReference->set<&AwaitableLambda<T>::await_ready>(this);
     }
 }
 
